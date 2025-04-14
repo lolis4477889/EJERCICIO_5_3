@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+import pandas as pd
+
+# Datos del experimento: Velocidad (km/h) y Consumo (L/100 km)
+velocidad = np.array([40, 60, 80, 100, 120, 140])
+consumo = np.array([6.5, 5.8, 5.5, 5.7, 6.2, 7.0])
+
+# Interpolaciones
+interp_lineal = interp1d(velocidad, consumo, kind='linear')
+interp_cuadratica = interp1d(velocidad, consumo, kind='quadratic')
+interp_cubica = interp1d(velocidad, consumo, kind='cubic')
+
+# Puntos intermedios para evaluar el comportamiento (cada 5 km/h)
+x_vals = np.linspace(40, 140, 21)
+y_real_interp = np.interp(x_vals, velocidad, consumo)  # Referencia por interpolación lineal simple
+y_lineal = interp_lineal(x_vals)
+y_cuadratica = interp_cuadratica(x_vals)
+y_cubica = interp_cubica(x_vals)
+
+# Crear DataFrame para comparación
+df_comparacion = pd.DataFrame({
+    'Velocidad (km/h)': x_vals,
+    'Consumo Ref (interp)': y_real_interp,
+    'Lineal (L/100km)': y_lineal,
+    'Error Lineal': np.abs(y_lineal - y_real_interp),
+    'Cuadrática (L/100km)': y_cuadratica,
+    'Error Cuadrática': np.abs(y_cuadratica - y_real_interp),
+    'Cúbica (L/100km)': y_cubica,
+    'Error Cúbica': np.abs(y_cubica - y_real_interp)
+})
+
+# Guardar en archivo Excel
+df_comparacion.to_excel('comparacion_consumo_combustible.xlsx', index=False)
+
+# Graficar
+plt.figure(figsize=(10, 6))
+plt.scatter(velocidad, consumo, color='red', label='Datos originales')
+plt.plot(x_vals, y_lineal, '--', label='Interpolación Lineal', color='blue')
+plt.plot(x_vals, y_cuadratica, '-.', label='Interpolación Cuadrática', color='green')
+plt.plot(x_vals, y_cubica, label='Interpolación Cúbica', color='purple')
+
+plt.title('Interpolación del Consumo de Combustible según Velocidad')
+plt.xlabel('Velocidad (km/h)')
+plt.ylabel('Consumo (L/100 km)')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.savefig("interpolacion_consumo_combustible.png")
+plt.show()
