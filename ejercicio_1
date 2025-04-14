@@ -1,0 +1,32 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+# Nuevos datos extraídos de la tabla de la imagen
+longitud = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+deflexion = np.array([0.0, -1.5, -2.8, -3.0, -2.7, -2.0])
+
+# Interpolaciones
+lineal_interp = interp1d(longitud, deflexion, kind='linear')
+cuadratica_interp = interp1d(longitud, deflexion, kind='quadratic')
+cubica_interp = interp1d(longitud, deflexion, kind='cubic')
+
+# Valores para graficar
+x_vals = np.linspace(0, 5, 200)
+y_lineal = lineal_interp(x_vals)
+y_cuadratica = cuadratica_interp(x_vals)
+y_cubica = cubica_interp(x_vals)
+
+# Graficar resultados
+plt.figure(figsize=(10, 6))
+plt.scatter(longitud, deflexion, color='red', label='Datos experimentales')
+plt.plot(x_vals, y_lineal, '--', label='Interpolación Lineal', color='blue')
+plt.plot(x_vals, y_cuadratica, '-.', label='Interpolación Cuadrática', color='green')
+plt.plot(x_vals, y_cubica, label='Interpolación Cúbica', color='purple')
+plt.xlabel('Longitud (m)')
+plt.ylabel('Deflexión (mm)')
+plt.title('Interpolación de Deflexión en una Viga')
+plt.grid(True)
+plt.legend()
+plt.savefig('deflexion_interpolada.png')
+plt.show()
