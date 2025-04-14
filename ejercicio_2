@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+import pandas as pd
+
+# Datos del experimento (distancia en cm y temperatura en °C)
+distancia = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+temperatura = np.array([250, 220, 180, 150, 130, 125])
+
+# Interpolaciones
+interp_lineal = interp1d(distancia, temperatura, kind='linear')
+interp_cuadratica = interp1d(distancia, temperatura, kind='quadratic')
+interp_cubica = interp1d(distancia, temperatura, kind='cubic')
+
+# Puntos intermedios (posiciones no medidas directamente)
+x_vals = np.linspace(0, 5, 21)  # cada 0.25 cm
+y_real_interp = np.interp(x_vals, distancia, temperatura)  # Valor "referencia" por interpolación lineal básica
+y_lineal = interp_lineal(x_vals)
+y_cuadratica = interp_cuadratica(x_vals)
+y_cubica = interp_cubica(x_vals)
+
+# Crear DataFrame para comparación
+df_comparacion = pd.DataFrame({
+    'Distancia (cm)': x_vals,
+    'Temperatura Ref (interp)': y_real_interp,
+    'Lineal (°C)': y_lineal,
+    'Error Lineal': np.abs(y_lineal - y_real_interp),
+    'Cuadrática (°C)': y_cuadratica,
+    'Error Cuadrática': np.abs(y_cuadratica - y_real_interp),
+    'Cúbica (°C)': y_cubica,
+    'Error Cúbica': np.abs(y_cubica - y_real_interp)
+})
+
+# Guardar tabla en archivo Excel
+df_comparacion.to_excel('comparacion_interpolaciones_motor.xlsx', index=False)
+
+# Gráfica
+plt.figure(figsize=(10, 6))
+plt.scatter(distancia, temperatura, color='red', label='Datos originales')
+plt.plot(x_vals, y_lineal, '--', label='Interpolación Lineal', color='blue')
+plt.plot(x_vals, y_cuadratica, '-.', label='Interpolación Cuadrática', color='green')
+plt.plot(x_vals, y_cubica, label='Interpolación Cúbica', color='purple')
+
+# Personalización del gráfico
+plt.title('Interpolación de Temperatura en el Cilindro del Motor')
+plt.xlabel('Distancia (cm)')
+plt.ylabel('Temperatura (°C)')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.savefig("interpolacion_temperatura_motor.png")
+plt.show()
